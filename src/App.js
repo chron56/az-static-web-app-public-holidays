@@ -1,95 +1,90 @@
-import React, {useEffect, useState} from "react";
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function App() {
-    const [data, setData] = useState(null);
+    const [countries, setCountries] = useState(null);
     const [country, setCountry] = useState(null);
     const [year, setYear] = useState("");
     const [holidays, setHolidays] = useState(null);
 
-
-    const handleSubmit = (event) => {
+    const handleYearSubmission = (event) => {
         event.preventDefault();
 
-        async function fetchData3() {
+        async function fetchHolidays() {
             try {
-                const response = await axios.get('https://date.nager.at/api/v3/PublicHolidays/' + year + '/' + country.countryCode);
+                const response = await axios.get(
+                    "https://date.nager.at/api/v3/PublicHolidays/" +
+                    year +
+                    "/" +
+                    country.countryCode
+                );
                 console.log(response.data);
-                setHolidays(response.data)
-
+                setHolidays(response.data);
             } catch (error) {
                 console.error(error);
             }
         }
 
-        fetchData3();
-    }
+        fetchHolidays();
+    };
 
     useEffect(() => {
-        async function fetchData() {
+        async function fetchCountries() {
             try {
-                const response = await axios.get('https://date.nager.at/api/v3/AvailableCountries');
-                setData(response.data);
+                const response = await axios.get(
+                    "https://date.nager.at/api/v3/AvailableCountries"
+                );
+                setCountries(response.data);
             } catch (error) {
                 console.error(error);
             }
         }
 
-        fetchData();
+        fetchCountries();
     }, []);
 
-    const fetchCountryDetails = (e) => {
-        let x = e.target.innerHTML;
-        // console.log(e);
-        console.log('ddddd')
-        console.log(x);
+    const handleCountrySelection = (e) => {
+        let x = e.target.value;
         e.preventDefault();
-        console.log('The Country was clicked.');
+        console.log("The Country was clicked.");
 
-        async function fetchData2() {
+        async function fetchCountryDetails() {
             try {
-                const response = await axios.get('https://date.nager.at/api/v3/CountryInfo/' + x);
+                const response = await axios.get(
+                    "https://date.nager.at/api/v3/CountryInfo/" + x
+                );
                 console.log(response.data);
                 setCountry(response.data);
-                console.log(country)
-                setHolidays(null)
+                console.log(country);
+                setHolidays(null);
             } catch (error) {
                 console.error(error);
             }
         }
 
-        fetchData2();
-    }
+        fetchCountryDetails();
+    };
 
     return (
         <div>
             <div>
-                <form onSubmit={handleSubmit}>
-                    <label>Enter the year for the public holidays:
-                        <input
-                            type="text"
-                            value={year}
-                            onChange={(e) => setYear(e.target.value)}
-                        />
-                    </label>
-                    <input type="submit"/>
-                </form>
+                <h2>List of Countries</h2>
+                {countries ? (
+                    <div>
+                        <select onChange={handleCountrySelection}>
+                            {countries.map((item) => {
+                                return (
+                                    <option key={item.countryCode} value={item.countryCode}>
+                                        {item.name}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
+                ) : (
+                    <p>Loading...</p>
+                )}
             </div>
-            {holidays ? (
-                <div>
-                    {holidays.map((item) => {
-                        return (
-                            <div>
-                                <ul>
-                                    <li style={{"list-style-type": "square"}}>{item.date} - {item.name} - {item.localName} </li>
-                                </ul>
-                            </div>
-                        );
-                    })}
-                </div>
-            ) : (
-                <p>Loading2...</p>
-            )}
             <div>
                 {country ? (
                     <div>
@@ -97,28 +92,43 @@ function App() {
                             <h2>Country : {country.commonName}</h2>
                             <h3>Details</h3>
                             <ul>
-                                <li style={{"list-style-type": "circle"}}>Official Name : {country.officialName}</li>
-                                <li style={{"list-style-type": "circle"}}>Region : {country.region}</li>
-                                <li style={{"list-style-type": "circle"}}>Code Country : {country.countryCode}</li>
+                                <li style={{ "list-style-type": "circle" }}>
+                                    Official Name : {country.officialName}
+                                </li>
+                                <li style={{ "list-style-type": "circle" }}>
+                                    Region : {country.region}
+                                </li>
+                                <li style={{ "list-style-type": "circle" }}>
+                                    Code Country : {country.countryCode}
+                                </li>
                             </ul>
                         </div>
-
-
                     </div>
                 ) : (
                     <p>No country Clicked</p>
                 )}
             </div>
             <div>
-                <h2>List of Countries</h2>
-                {data ? (
+                <form onSubmit={handleYearSubmission}>
+                    <label>
+                        <b>Enter the year for the public holidays:</b>
+                        <input
+                            type="text"
+                            value={year}
+                            onChange={(e) => setYear(e.target.value)}
+                        />
+                    </label>
+                    <input type="submit" />
+                </form>
+
+                {holidays ? (
                     <div>
-                        {data.map((item) => {
+                        {holidays.map((item) => {
                             return (
                                 <div>
                                     <ul>
-                                        <li style={{"list-style-type": "square"}}>
-                                            <button onClick={fetchCountryDetails}>{item.countryCode} </button>
+                                        <li key={item.date} style={{ "list-style-type": "square" }}>
+                                            {item.date} - {item.name} - {item.localName}{" "}
                                         </li>
                                     </ul>
                                 </div>
@@ -126,10 +136,9 @@ function App() {
                         })}
                     </div>
                 ) : (
-                    <p>Loading...</p>
+                    <p>Loading2...</p>
                 )}
             </div>
-
         </div>
     );
 }
