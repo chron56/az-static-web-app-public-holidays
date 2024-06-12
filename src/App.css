@@ -1,0 +1,14 @@
+.div-center {
+    align-itemstems: center;
+    display: flex;
+    justify-content: center;
+    margin: 1%
+}
+
+.div-1of3 {
+    display: inline;
+    float: left;
+    max-width: 33%;
+    min-width:28%;
+    margin: 2%;
+}

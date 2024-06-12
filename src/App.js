@@ -1,5 +1,26 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./App.css";
+import { CalendarMonthRegular } from "@fluentui/react-icons";
+import {
+    TableBody,
+    TableCell,
+    TableRow,
+    Table,
+    TableHeader,
+    TableHeaderCell,
+    TableCellLayout,
+    Dropdown,
+    Card,
+    CardHeader,
+    Input,
+    Label,
+    Button,
+    Body1,
+    Caption1,
+    Divider,
+    Option,
+} from "@fluentui/react-components";
 
 function App() {
     const [countries, setCountries] = useState(null);
@@ -7,26 +28,11 @@ function App() {
     const [year, setYear] = useState("");
     const [holidays, setHolidays] = useState(null);
 
-    const handleYearSubmission = (event) => {
-        event.preventDefault();
-
-        async function fetchHolidays() {
-            try {
-                const response = await axios.get(
-                    "https://date.nager.at/api/v3/PublicHolidays/" +
-                    year +
-                    "/" +
-                    country.countryCode
-                );
-                console.log(response.data);
-                setHolidays(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        fetchHolidays();
-    };
+    const tableColumns = [
+        { columnKey: "date", label: "Date" },
+        { columnKey: "name", label: "Holiday's Name" },
+        { columnKey: "localName", label: "Holiday's Local Name" },
+    ];
 
     useEffect(() => {
         async function fetchCountries() {
@@ -43,20 +49,14 @@ function App() {
         fetchCountries();
     }, []);
 
-    const handleCountrySelection = (e) => {
-        let x = e.target.value;
-        e.preventDefault();
-        console.log("The Country was clicked.");
-
+    const handleCountrySelection = (countryCode) => {
+        setHolidays(null);
         async function fetchCountryDetails() {
             try {
                 const response = await axios.get(
-                    "https://date.nager.at/api/v3/CountryInfo/" + x
+                    "https://date.nager.at/api/v3/CountryInfo/" + countryCode
                 );
-                console.log(response.data);
                 setCountry(response.data);
-                console.log(country);
-                setHolidays(null);
             } catch (error) {
                 console.error(error);
             }
@@ -65,80 +65,148 @@ function App() {
         fetchCountryDetails();
     };
 
+    const handleFindHolidaysClick = () => {
+        async function fetchHolidays() {
+            try {
+                const response = await axios.get(
+                    "https://date.nager.at/api/v3/PublicHolidays/" +
+                    year +
+                    "/" +
+                    country.countryCode
+                );
+                setHolidays(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        fetchHolidays();
+    };
+
     return (
         <div>
-            <div>
-                <h2>List of Countries</h2>
+
+            <div className="div-center" style={{ backgroundColor: "lightgrey" }}>
+                <h1>Worldwide Holidays</h1>
+            </div>
+
+            <Divider />
+
+            <div className="div-1of3">
+                <Label>
+                    <b>Country : </b>
+                </Label>
                 {countries ? (
-                    <div>
-                        <select onChange={handleCountrySelection}>
-                            {countries.map((item) => {
-                                return (
-                                    <option key={item.countryCode} value={item.countryCode}>
-                                        {item.name}
-                                    </option>
-                                );
-                            })}
-                        </select>
-                    </div>
+                    <Dropdown
+                        placeholder="Select Country"
+                        onOptionSelect={(_, data) =>
+                            handleCountrySelection(data.optionValue)
+                        }
+                    >
+                        {countries.map((item) => (
+                            <Option key={item.countryCode} value={item.countryCode}>
+                                {item.name}
+                            </Option>
+                        ))}
+                    </Dropdown>
                 ) : (
-                    <p>Loading...</p>
+                    <p style={{ color: "#FF0000" }}>Dropdown is not available</p>
                 )}
             </div>
-            <div>
-                {country ? (
-                    <div>
+
+            <div className="div-1of3">
+                <Label>
+                    <b>Year : </b>
+                </Label>
+                <Input
+                    type="number"
+                    placeholder="Set Year"
+                    onChange={(e) => setYear(e.target.value)}
+                />
+            </div>
+
+            <div className="div-1of3">
+                <Card appearance="outline" style={{ backgroundColor: "lightgrey" }}>
+                    <CardHeader
+                        header={
+                            <Body1>
+                                <b>Country's Info Card</b>
+                            </Body1>
+                        }
+                        description={<Caption1>Details</Caption1>}
+                    />
+
+                    {country ? (
                         <div>
-                            <h2>Country : {country.commonName}</h2>
-                            <h3>Details</h3>
                             <ul>
-                                <li style={{ "list-style-type": "circle" }}>
-                                    Official Name : {country.officialName}
+                                <li style={{ listStyleType: "circle" }}>
+                                    <b>Official Country Name : </b> {country.officialName}
                                 </li>
-                                <li style={{ "list-style-type": "circle" }}>
-                                    Region : {country.region}
+                                <li style={{ listStyleType: "circle" }}>
+                                    <b>Region of the Country: </b> {country.region}
                                 </li>
-                                <li style={{ "list-style-type": "circle" }}>
-                                    Code Country : {country.countryCode}
+                                <li style={{ listStyleType: "circle" }}>
+                                    <b>Country Code : </b> {country.countryCode}
                                 </li>
                             </ul>
                         </div>
-                    </div>
-                ) : (
-                    <p>No country Clicked</p>
-                )}
+                    ) : (
+                        <p style={{ color: "#FF0000" }}>Please select a country</p>
+                    )}
+                </Card>
             </div>
-            <div>
-                <form onSubmit={handleYearSubmission}>
-                    <label>
-                        <b>Enter the year for the public holidays:</b>
-                        <input
-                            type="text"
-                            value={year}
-                            onChange={(e) => setYear(e.target.value)}
-                        />
-                    </label>
-                    <input type="submit" />
-                </form>
 
-                {holidays ? (
-                    <div>
-                        {holidays.map((item) => {
-                            return (
-                                <div>
-                                    <ul>
-                                        <li key={item.date} style={{ "list-style-type": "square" }}>
-                                            {item.date} - {item.name} - {item.localName}{" "}
-                                        </li>
-                                    </ul>
-                                </div>
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <p>Loading2...</p>
-                )}
+            <Divider />
+
+            <div className="div-center">
+                <Button
+                    size="large"
+                    icon={<CalendarMonthRegular />}
+                    onClick={handleFindHolidaysClick}
+                    appearance="primary"
+                >
+                    Find out holidays
+                </Button>
             </div>
+
+            <Divider />
+
+            <div className="div-center">
+                <Table
+                    arial-label="Default table"
+                    style={{
+                        width: "90%",
+                    }}
+                >
+                    <TableHeader style={{ backgroundColor: "darkgray" }}>
+                        <TableRow>
+                            {tableColumns.map((column) => (
+                                <TableHeaderCell key={column.columnKey}>
+                                    <h3>{column.label}</h3>
+                                </TableHeaderCell>
+                            ))}
+                        </TableRow>
+                    </TableHeader>
+                    {holidays ? (
+                        <TableBody style={{ backgroundColor: "lightgrey" }}>
+                            {holidays.map((item) => (
+                                <TableRow key={item.date}>
+                                    <TableCell>
+                                        <TableCellLayout media={<CalendarMonthRegular />}>
+                                            {item.date}
+                                        </TableCellLayout>
+                                    </TableCell>
+                                    <TableCell>{item.name}</TableCell>
+                                    <TableCell>{item.localName}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    ) : (
+                        <TableBody></TableBody>
+                    )}
+                </Table>
+            </div>
+            
         </div>
     );
 }
