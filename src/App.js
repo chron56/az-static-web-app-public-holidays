@@ -163,7 +163,7 @@ function App() {
                     size="large"
                     icon={<CalendarMonthRegular />}
                     onClick={handleFindHolidaysClick}
-                    appearance="primary"
+                    appearance="success"
                 >
                     Find out holidays
                 </Button>
