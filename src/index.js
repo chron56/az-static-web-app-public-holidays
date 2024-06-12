@@ -1,12 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-    <FluentProvider theme={webLightTheme}>
-        <App />
-    </FluentProvider>
+ReactDOM.render(
+  <FluentProvider theme={webLightTheme}>
+    <App />
+  </FluentProvider>,
+  document.getElementById('root'),
 );
