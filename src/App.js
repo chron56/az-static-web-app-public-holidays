@@ -1,38 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState} from "react";
 import axios from "axios";
 import "./App.css";
 import { CalendarMonthRegular } from "@fluentui/react-icons";
 import {
-    TableBody,
-    TableCell,
-    TableRow,
-    Table,
-    TableHeader,
-    TableHeaderCell,
-    TableCellLayout,
     Dropdown,
-    Card,
-    CardHeader,
     Input,
     Label,
     Button,
-    Body1,
-    Caption1,
     Divider,
     Option,
 } from "@fluentui/react-components";
+import {HolidaysTable} from "./HolidaysTable";
+import {CountryCard} from "./CountryCard";
 
 function App() {
     const [countries, setCountries] = useState(null);
     const [country, setCountry] = useState(null);
     const [year, setYear] = useState("");
     const [holidays, setHolidays] = useState(null);
-
-    const tableColumns = [
-        { columnKey: "date", label: "Date" },
-        { columnKey: "name", label: "Holiday's Name" },
-        { columnKey: "localName", label: "Holiday's Local Name" },
-    ];
 
     useEffect(() => {
         async function fetchCountries() {
@@ -51,6 +36,7 @@ function App() {
 
     const handleCountrySelection = (countryCode) => {
         setHolidays(null);
+
         async function fetchCountryDetails() {
             try {
                 const response = await axios.get(
@@ -125,36 +111,7 @@ function App() {
                 />
             </div>
 
-            <div className="div-1of3">
-                <Card appearance="outline" style={{ backgroundColor: "lightgrey" }}>
-                    <CardHeader
-                        header={
-                            <Body1>
-                                <b>Country's Info Card</b>
-                            </Body1>
-                        }
-                        description={<Caption1>Details</Caption1>}
-                    />
-
-                    {country ? (
-                        <div>
-                            <ul>
-                                <li style={{ listStyleType: "circle" }}>
-                                    <b>Official Country Name : </b> {country.officialName}
-                                </li>
-                                <li style={{ listStyleType: "circle" }}>
-                                    <b>Region of the Country: </b> {country.region}
-                                </li>
-                                <li style={{ listStyleType: "circle" }}>
-                                    <b>Country Code : </b> {country.countryCode}
-                                </li>
-                            </ul>
-                        </div>
-                    ) : (
-                        <p style={{ color: "#FF0000" }}>Please select a country</p>
-                    )}
-                </Card>
-            </div>
+            <CountryCard country={country}/>
 
             <Divider />
 
@@ -171,42 +128,7 @@ function App() {
 
             <Divider />
 
-            <div className="div-center">
-                <Table
-                    arial-label="Default table"
-                    style={{
-                        width: "90%",
-                    }}
-                >
-                    <TableHeader style={{ backgroundColor: "darkgray" }}>
-                        <TableRow>
-                            {tableColumns.map((column) => (
-                                <TableHeaderCell key={column.columnKey}>
-                                    <h3>{column.label}</h3>
-                                </TableHeaderCell>
-                            ))}
-                        </TableRow>
-                    </TableHeader>
-                    {holidays ? (
-                        <TableBody style={{ backgroundColor: "lightgrey" }}>
-                            {holidays.map((item) => (
-                                <TableRow key={item.date}>
-                                    <TableCell>
-                                        <TableCellLayout media={<CalendarMonthRegular />}>
-                                            {item.date}
-                                        </TableCellLayout>
-                                    </TableCell>
-                                    <TableCell>{item.name}</TableCell>
-                                    <TableCell>{item.localName}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    ) : (
-                        <TableBody></TableBody>
-                    )}
-                </Table>
-            </div>
-            
+            <HolidaysTable holidays={holidays} />
         </div>
     );
 }
